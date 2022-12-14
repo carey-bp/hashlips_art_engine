@@ -549,7 +549,7 @@ const startCreating = () => {
 
     return true;
   });
-  writeMetaData(JSON.stringify(metadataList, null, 2));
+  writeMetaData(`[${metadataList.map(e => JSON.stringify(e, null, 2)).join(',')}]`);
 };
 
 module.exports = { startCreating, buildSetup, getElements };
