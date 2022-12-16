@@ -3,6 +3,8 @@
 const basePath = process.cwd();
 const fs = require("fs");
 
+const JSONStream = require( "JSONStream" );
+
 if (!fs.existsSync(`${basePath}/node_modules/sha1`)) {
   console.error("You need to run npm install");
   process.exit();
@@ -389,10 +391,6 @@ const createDna = (_layers) => {
   return randNum;
 };
 
-const writeMetaData = (_data) => {
-  fs.writeFileSync(`${buildDir}/json/_metadata.json`, _data);
-};
-
 const saveMetaDataSingleFile = (_editionCount) => {
   let metadata = metadataList.find((meta) => (meta.edition == null ? meta.custom_fields.edition : meta.edition) == _editionCount);
   debugLogs
@@ -549,7 +547,12 @@ const startCreating = () => {
 
     return true;
   });
-  writeMetaData(`[${metadataList.map(e => JSON.stringify(e, null, 2)).join(',')}]`);
+
+  var transformStream = JSONStream.stringify();
+  var outputStream = fs.createWriteStream(`${buildDir}/json/_metadata.json`);
+  transformStream.pipe(outputStream);
+  metadataList.forEach(transformStream.write);
+  transformStream.end();
 };
 
 module.exports = { startCreating, buildSetup, getElements };
